@@ -5,7 +5,7 @@ import os
 import cv2
 import numpy as np
 import time
-import customDarknet as darknet
+import darknet
 from collections import deque
 import imutils
 import argparse
