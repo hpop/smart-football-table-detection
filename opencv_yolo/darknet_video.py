@@ -79,8 +79,8 @@ if args["buffer"] is not 'empty':
 
 if args["record"] is not 'empty':
     fileName = args["record"]
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter((str(fileName)+'.avi'),fourcc, 20.0, (1280,720))
+    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+    out = cv2.VideoWriter((str(fileName)+'.avi'), fourcc, 20.0, (1280,720))
 
 pts = deque(maxlen=bufferSize)
 
@@ -142,7 +142,11 @@ def YOLO():
                                     darknet.network_height(netMain),3)
 
     print("Starting the YOLO loop...")
+    frame = 0
     while True:
+        frame = frame + 1
+        print("Frame: " + str(frame))
+
         prev_time = time.time()
         ret, frame_read = cap.read()
         frame_rgb = cv2.cvtColor(frame_read, cv2.COLOR_BGR2RGB)
@@ -190,7 +194,8 @@ def YOLO():
             thickness = int(np.sqrt(200 / float(i + 1)) * 2)
             cv2.line(frame_resized, pts[i - 1], pts[i], (0, 255, 0), thickness)
 
-        client.publish("ball/position/abs", str(position[0]) + "," + str(position[1]))
+        print(str(position[0]) + "," + str(position[1]))
+        # client.publish("ball/position/abs", str(position[0]) + "," + str(position[1]))
 
         if(position[0]==-1):
             relPointX = position[0]
@@ -199,14 +204,14 @@ def YOLO():
             relPointX = float(position[0])/frame_resized.shape[1]
             relPointY = float(position[1])/frame_resized.shape[0]
 
-        client.publish("ball/position/rel", str(relPointX) + "," + str(relPointY))
+        # client.publish("ball/position/rel", str(relPointX) + "," + str(relPointY))
 
         image = frame_resized
         if not (len(detections) is 0):
             image = cvDrawBall(detections[idOfDetection], frame_resized)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-        #image = cv2.resize(image, (1145,680))
+
         image = cv2.resize(image, (1280,720))
 
         if args["record"] is not 'empty':
@@ -214,7 +219,7 @@ def YOLO():
 
         if args["showvideo"]: 
            cv2.imshow('Demo', image)
-           cv2.moveWindow("Demo", 1025,490);
+           cv2.moveWindow("Demo", 1025,490)
 
         cv2.waitKey(3)
     cap.release()
