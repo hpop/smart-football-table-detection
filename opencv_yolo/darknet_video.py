@@ -80,7 +80,7 @@ if args["buffer"] is not 'empty':
 if args["record"] is not 'empty':
     fileName = args["record"]
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    out = cv2.VideoWriter((str(fileName)+'.avi'), fourcc, 20.0, (1280,720))
+    out = cv2.VideoWriter((str(fileName)+'.avi'), fourcc, 60.0, (1280,720))
 
 pts = deque(maxlen=bufferSize)
 
