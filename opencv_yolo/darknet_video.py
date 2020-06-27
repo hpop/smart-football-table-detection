@@ -134,17 +134,18 @@ def YOLO():
             pass
     cap = cv2.VideoCapture(pathToFile)
 
-    width = int(cap.get(3))  # float
-    height = int(cap.get(4)) # float
+    cap.set(3, 1280)
+    cap.set(4, 720)
 
     # Create an image we reuse for each detect
     darknet_image = darknet.make_image(darknet.network_width(netMain),
                                     darknet.network_height(netMain),3)
 
+    print("Starting the YOLO loop...")
     while True:
         prev_time = time.time()
         ret, frame_read = cap.read()
-        # frame_rgb = cv2.cvtColor(frame_read, cv2.COLOR_BGR2RGB)
+        frame_rgb = cv2.cvtColor(frame_read, cv2.COLOR_BGR2RGB)
 
         # # cut out values for the fisheye lense, dirty hack during COM
         # x_start = 9
@@ -157,7 +158,7 @@ def YOLO():
         # frame_rgb = cv2.resize(frame_rgb, (width, height))
 
 
-        frame_resized = cv2.resize(frame_read,
+        frame_resized = cv2.resize(frame_rgb,
                                    (darknet.network_width(netMain),
                                     darknet.network_height(netMain)),
                                    interpolation=cv2.INTER_LINEAR)
