@@ -148,9 +148,7 @@ def YOLO():
         print("Frame: " + str(frame))
 
         prev_time = time.time()
-        print("Read Frame")
         ret, frame_read = cap.read()
-        print("Read Frame Done")
         frame_rgb = cv2.cvtColor(frame_read, cv2.COLOR_BGR2RGB)
 
         # # cut out values for the fisheye lense, dirty hack during COM
@@ -171,7 +169,7 @@ def YOLO():
 
         darknet.copy_image_from_bytes(darknet_image,frame_resized.tobytes())
         print("detect")
-        detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.05)
+        detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.05, debug=True)
         print("detect done")
         position = (-1,-1)
 
