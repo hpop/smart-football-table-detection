@@ -173,7 +173,6 @@ def YOLO():
 
         position = (-1,-1)
 
-        print(str(position[0]) + "," + str(position[1]))
 
         if not (len(detections) is 0):
             idOfDetection = getIDHighestDetection(detections)
@@ -181,6 +180,9 @@ def YOLO():
             pts.appendleft(position)
         #else:
         #    pts.append(None)
+
+        print(str(position[0]) + "," + str(position[1]))
+
 
         # loop over the set of tracked points
         for i in range(1, len(pts)):
