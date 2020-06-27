@@ -79,8 +79,8 @@ if args["buffer"] is not 'empty':
 
 if args["record"] is not 'empty':
     fileName = args["record"]
-    fourcc = cv2.cv.FOURCC(*'XVID')
-    out = cv2.VideoWriter((str(fileName)+'.avi'),fourcc, 20.0, (800,525))
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    out = cv2.VideoWriter((str(fileName)+'.avi'),fourcc, 20.0, (1280,720))
 
 pts = deque(maxlen=bufferSize)
 
@@ -144,17 +144,17 @@ def YOLO():
     while True:
         prev_time = time.time()
         ret, frame_read = cap.read()
-        frame_rgb = cv2.cvtColor(frame_read, cv2.COLOR_BGR2RGB)
+        # frame_rgb = cv2.cvtColor(frame_read, cv2.COLOR_BGR2RGB)
 
-        # cut out values for the fisheye lense, dirty hack during COM
-        x_start = 9
-        x_end = 440
-        y_start = 0
-        y_end = width
-
-        frame_rgb = frame_rgb[x_start:x_end, y_start:y_end]
-
-        frame_rgb = cv2.resize(frame_rgb, (width, height))
+        # # cut out values for the fisheye lense, dirty hack during COM
+        # x_start = 9
+        # x_end = 440
+        # y_start = 0
+        # y_end = width
+        #
+        # frame_rgb = frame_rgb[x_start:x_end, y_start:y_end]
+        #
+        # frame_rgb = cv2.resize(frame_rgb, (width, height))
 
 
         frame_resized = cv2.resize(frame_rgb,
@@ -178,7 +178,7 @@ def YOLO():
         #    pts.append(None)
 
         # loop over the set of tracked points
-        for i in xrange(1, len(pts)):
+        for i in range(1, len(pts)):
             # if either of the tracked points are None, ignore
             # them
             if pts[i - 1] is None or pts[i] is None:
@@ -206,7 +206,7 @@ def YOLO():
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         #image = cv2.resize(image, (1145,680))
-        image = cv2.resize(image, (800,525))
+        image = cv2.resize(image, (1280,720))
 
         if args["record"] is not 'empty':
             out.write(image)
