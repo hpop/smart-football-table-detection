@@ -148,7 +148,9 @@ def YOLO():
         print("Frame: " + str(frame))
 
         prev_time = time.time()
+        print("Read Frame")
         ret, frame_read = cap.read()
+        print("Read Frame Done")
         frame_rgb = cv2.cvtColor(frame_read, cv2.COLOR_BGR2RGB)
 
         # # cut out values for the fisheye lense, dirty hack during COM
