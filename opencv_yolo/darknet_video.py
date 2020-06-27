@@ -87,12 +87,12 @@ pts = deque(maxlen=bufferSize)
 
 def YOLO():
 
-    #start mqttclient
-    client = mqtt.Client()
-    client.on_connect = on_connect
-    client.connect(args["mqtthost"], args["mqttport"], 60)
-
-    client.loop_start()
+    # #start mqttclient
+    # client = mqtt.Client()
+    # client.on_connect = on_connect
+    # client.connect(args["mqtthost"], args["mqttport"], 60)
+    #
+    # client.loop_start()
 
     global metaMain, netMain, altNames
     configPath = 'obj.cfg'
@@ -173,7 +173,7 @@ def YOLO():
 
         position = (-1,-1)
 
-
+        print(str(position[0]) + "," + str(position[1]))
 
         if not (len(detections) is 0):
             idOfDetection = getIDHighestDetection(detections)
@@ -194,7 +194,7 @@ def YOLO():
             thickness = int(np.sqrt(200 / float(i + 1)) * 2)
             cv2.line(frame_resized, pts[i - 1], pts[i], (0, 255, 0), thickness)
 
-        print(str(position[0]) + "," + str(position[1]))
+
         # client.publish("ball/position/abs", str(position[0]) + "," + str(position[1]))
 
         if(position[0]==-1):
