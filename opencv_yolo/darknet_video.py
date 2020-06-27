@@ -157,7 +157,7 @@ def YOLO():
         # frame_rgb = cv2.resize(frame_rgb, (width, height))
 
 
-        frame_resized = cv2.resize(frame_rgb,
+        frame_resized = cv2.resize(frame_read,
                                    (darknet.network_width(netMain),
                                     darknet.network_height(netMain)),
                                    interpolation=cv2.INTER_LINEAR)
