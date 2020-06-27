@@ -169,7 +169,7 @@ def YOLO():
 
         darknet.copy_image_from_bytes(darknet_image,frame_resized.tobytes())
         print("detect")
-        detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.05, debug=True)
+        detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.25)
         print("detect done")
         position = (-1,-1)
 
@@ -209,8 +209,8 @@ def YOLO():
         # client.publish("ball/position/rel", str(relPointX) + "," + str(relPointY))
 
         image = frame_resized
-        if not (len(detections) is 0):
-            image = cvDrawBall(detections[idOfDetection], frame_resized)
+        # if not (len(detections) is 0):
+        #     image = cvDrawBall(detections[idOfDetection], frame_resized)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
 
