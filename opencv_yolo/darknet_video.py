@@ -168,9 +168,9 @@ def YOLO():
                                    interpolation=cv2.INTER_LINEAR)
 
         darknet.copy_image_from_bytes(darknet_image,frame_resized.tobytes())
-
+        print("detect")
         detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.05)
-
+        print("detect done")
         position = (-1,-1)
 
 
