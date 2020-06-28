@@ -120,21 +120,28 @@ def YOLO():
             pass
 
 
+    # read video file
     cap = cv2.VideoCapture(pathToFile)
+    input_width = int(cap.get(3))
+    input_height = int(cap.get(4))
+    input_fps = cap.get(cv2.CAP_PROP_FPS)
+    input_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    print(f"Found Video: {input_width}x{input_height} - {input_fps} FPS" )
 
-    width = cap.get(3)
-    height = cap.get(4)
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-    print(f"Found Video: {width}x{height} - {fps} FPS" )
-
+    # create output stream
     if fileName is not 'empty':
-        out = cv2.VideoWriter((str(fileName)+'.mp4'), cv2.VideoWriter_fourcc(*'X264'), fps, (width, height))
+        out = cv2.VideoWriter((str(fileName)+'.mp4'), cv2.VideoWriter_fourcc(*'X264'), input_fps, (input_width, input_height))
 
+
+    network_width = darknet.network_width(netMain)
+    network_height = darknet.network_height(netMain)
+    print(f"Network: {network_width}x{network_height}")
     # Create an image we reuse for each detect
-    darknet_image = darknet.make_image(darknet.network_width(netMain),
-                                    darknet.network_height(netMain),3)
+    darknet_image = darknet.make_image(network_width, network_height, 3)
+
+    scale_x = input_width / network_width
+    scale_y = input_height / network_height
 
     print("Starting the YOLO loop...")
     frame_count = 0
@@ -147,8 +154,7 @@ def YOLO():
         frame_rgb = cv2.cvtColor(frame_read, cv2.COLOR_BGR2RGB)
 
         frame_resized = cv2.resize(frame_rgb,
-                                   (darknet.network_width(netMain),
-                                    darknet.network_height(netMain)),
+                                   (network_width, network_height),
                                    interpolation=cv2.INTER_LINEAR)
 
         darknet.copy_image_from_bytes(darknet_image,frame_resized.tobytes())
@@ -165,7 +171,7 @@ def YOLO():
 
         # update fps every 10 frames
         if frame_count % 10 == 0:
-            percent = 100 / length * frame_count
+            percent = 100 / input_frames * frame_count
             print(f"Ball: {position[0]},{position[1]} - {percent}% done - {fps.fps()} FPS")
 
 
@@ -179,37 +185,19 @@ def YOLO():
             # otherwise, compute the thickness of the line and
             # draw the connecting lines
             thickness = int(np.sqrt(200 / float(i + 1)) * 2)
-            cv2.line(frame_resized, pts[i - 1], pts[i], (0, 255, 0), thickness)
+            cv2.line(frame_read, pts[i - 1] * scale_x, pts[i] * scale_y, (0, 255, 0), thickness)
 
 
-        # client.publish("ball/position/abs", str(position[0]) + "," + str(position[1]))
-
-        if(position[0]==-1):
-            relPointX = position[0]
-            relPointY = position[1]
-        else:
-            relPointX = float(position[0])/frame_resized.shape[1]
-            relPointY = float(position[1])/frame_resized.shape[0]
-
-        # client.publish("ball/position/rel", str(relPointX) + "," + str(relPointY))
-
-        image = frame_resized
-        # if not (len(detections) is 0):
-        #     image = cvDrawBall(detections[idOfDetection], frame_resized)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-
-        image = cv2.resize(image, (1280,720))
 
         if args["record"] is not 'empty':
-            out.write(image)
+            out.write(frame_read)
 
         if args["showvideo"]: 
-           cv2.imshow('Demo', image)
+           cv2.imshow('Demo', frame_read)
            cv2.moveWindow("Demo", 1025,490)
 
-        cv2.waitKey(3)
         fps.update()
+        cv2.waitKey(3)
 
     cap.release()
     out.release()
