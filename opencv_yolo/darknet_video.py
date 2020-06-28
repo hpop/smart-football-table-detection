@@ -1,15 +1,10 @@
-from ctypes import *
-import math
-import random
 import os
 import cv2
 import numpy as np
-import time
 import darknet
 from collections import deque
-import imutils
+from imutils.video import FPS
 import argparse
-import paho.mqtt.client as mqtt
 
 def convertBack(x, y, w, h):
     xmin = int(round(x - (w / 2)))
@@ -79,20 +74,11 @@ if args["buffer"] is not 'empty':
 
 if args["record"] is not 'empty':
     fileName = args["record"]
-    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    out = cv2.VideoWriter((str(fileName)+'.avi'), fourcc, 60.0, (1280,720))
 
 pts = deque(maxlen=bufferSize)
 
 
 def YOLO():
-
-    # #start mqttclient
-    # client = mqtt.Client()
-    # client.on_connect = on_connect
-    # client.connect(args["mqtthost"], args["mqttport"], 60)
-    #
-    # client.loop_start()
 
     global metaMain, netMain, altNames
     configPath = 'obj.cfg'
@@ -132,35 +118,33 @@ def YOLO():
                     pass
         except Exception:
             pass
+
+
     cap = cv2.VideoCapture(pathToFile)
 
-    cap.set(3, 1280)
-    cap.set(4, 720)
+    width = cap.get(3)
+    height = cap.get(4)
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    print(f"Found Video: {width}x{height} - {fps} FPS" )
+
+    if fileName is not 'empty':
+        out = cv2.VideoWriter((str(fileName)+'.mp4'), cv2.VideoWriter_fourcc(*'X264'), fps, (width, height))
 
     # Create an image we reuse for each detect
     darknet_image = darknet.make_image(darknet.network_width(netMain),
                                     darknet.network_height(netMain),3)
 
     print("Starting the YOLO loop...")
-    frame = 0
+    frame_count = 0
+    fps = FPS().start()
     while True:
-        frame = frame + 1
-        print("Frame: " + str(frame))
 
-        prev_time = time.time()
+        frame_count += 1
+
         ret, frame_read = cap.read()
         frame_rgb = cv2.cvtColor(frame_read, cv2.COLOR_BGR2RGB)
-
-        # # cut out values for the fisheye lense, dirty hack during COM
-        # x_start = 9
-        # x_end = 440
-        # y_start = 0
-        # y_end = width
-        #
-        # frame_rgb = frame_rgb[x_start:x_end, y_start:y_end]
-        #
-        # frame_rgb = cv2.resize(frame_rgb, (width, height))
-
 
         frame_resized = cv2.resize(frame_rgb,
                                    (darknet.network_width(netMain),
@@ -179,7 +163,10 @@ def YOLO():
         #else:
         #    pts.append(None)
 
-        print(str(position[0]) + "," + str(position[1]))
+        # update fps every 10 frames
+        if frame_count % 10 == 0:
+            percent = 100 / length * frame_count
+            print(f"Ball: {position[0]},{position[1]} - {percent}% done - {fps.fps()} FPS")
 
 
         # loop over the set of tracked points
@@ -222,6 +209,8 @@ def YOLO():
            cv2.moveWindow("Demo", 1025,490)
 
         cv2.waitKey(3)
+        fps.update()
+
     cap.release()
     out.release()
 
